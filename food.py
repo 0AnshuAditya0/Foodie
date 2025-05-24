@@ -23,7 +23,7 @@ TOKEN = os.getenv("TOKEN")
 
 intents = discord.Intents.default()
 intents.message_content = True
-bot = commands.Bot(command_prefix="O", intents=intents, help_command=None)
+bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
 @bot.event
 async def on_ready():
@@ -41,6 +41,15 @@ async def hellofoodie(ctx):
     await ctx.send(embed=embed)
 
 
+@bot.command()
+async def ping(ctx):
+    latency = round(bot.latency * 1000)  # in ms
+    embed = discord.Embed(
+        title="🏓 Pong!",
+        description=f"Latency: `{latency}ms`",
+        color=discord.Color.green()
+    )
+    await ctx.send(embed=embed)
 
 
 
@@ -52,13 +61,21 @@ async def foodpic(ctx):
 
 @bot.command()
 async def recipe(ctx, *, name):
-    result = await get_recipe_by_name(name)
-    await ctx.send(result)
+    await get_recipe_by_name(ctx, name)
+
 
 @bot.command()
 async def randommeal(ctx):
-    result = await get_random_meal()
-    await ctx.send(result)
+    meal = await get_random_meal()
+    embed = discord.Embed(
+        title=f"🍽️ Random Meal: {meal['name']}",
+        description=f"**Category:** {meal['category']}\n**Area:** {meal['area']}\n\n**Instructions:** {meal['instructions'][:200]}...",
+        color=discord.Color.orange()
+    )
+    embed.set_thumbnail(url=meal["image"])
+    embed.add_field(name="🎥 Watch it on YouTube", value=meal["youtube"], inline=False)
+    await ctx.send(embed=embed)
+
 
 @bot.command()
 async def product(ctx, *, name):
